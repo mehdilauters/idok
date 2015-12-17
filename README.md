@@ -225,13 +225,23 @@ Last minus sign of ffmpeg means "stream to STDOUT". Idok will read from STDIN (p
 
 Gstreamer can be used to stream medias to stdout using "fdsink" or "filesink location=/dev/stdout". 
 
-If you're using operating system that can be able to launch gstreamer pipelines, here is a nice "screencast stream":
+If you're using operating system that can be able to launch gstreamer pipelines, here are two nice "screencast stream":
 
+### Video only
 	gst-launch-1.0 -q ximagesrc remote=1 ! videoconvert ! \
 	avenc_mpeg4 ! \
 	mpegtsmux ! filesink location=/dev/stdout | \
 	idok -stdin -ssh -target=YOUR_KODI_IP
 
+### Audio and video
+
+	gst-launch-1.0 ximagesrc remote=1 !  videoconvert !\
+	queue !  avenc_mpeg4  ! mux. \
+	pulsesrc ! audio/x-raw ! queue !\
+	audioconvert ! voaacenc ! mux. mpegtsmux name=mux !\
+	filesink location=/dev/stdout | \
+	idok -stdin -ssh -target=YOUR_KODI_IP
+	
 Remove "remote=1" on "non fedora 20", this option is needed as far as I know on Fedora 20 (reported bug)
 
 "mpegtsmux" is made to stream mpeg content. This is the better plugin to stream with minimal latency AFAIK.
